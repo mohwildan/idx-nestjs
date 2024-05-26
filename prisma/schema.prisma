@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id        String     @id @default(uuid())
+  name      String?
+  email     String     @unique
+  password  String
+  position  String?
+  nik       String?
+  company   companies?
+  is_active Boolean @default(false)
+  deletedAt DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model companies {
+  id                      String     @id @default(uuid())
+  user_id                 String     @unique
+  name                    String
+  province                provinces?
+  districts               districts?
+  postal_code             String
+  npw                     String
+  kbli                    String
+  kadin_membership_number String
+  membership_expiry_date  DateTime
+  province_id             String     @unique
+  district_id             String     @unique
+  users                   users      @relation(fields: [user_id], references: [id])
+  deletedAt               DateTime?
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+}
+
+model provinces {
+  id        String    @id @default(uuid())
+  name      String
+  companies companies @relation(fields: [id], references: [province_id])
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model districts {
+  id        String    @id @default(uuid())
+  name      String
+  companies companies @relation(fields: [id], references: [district_id])
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

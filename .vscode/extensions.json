@@ -1,8 +1,10 @@
 {
     "recommendations": [
-        "Prisma.prisma",
-        "EditorConfig.EditorConfig",
+        "prisma.prisma",
+        "editorconfig.editorconfig",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "vscodevim.vim",
+        "alefragnani.project-manager"
     ]
 }

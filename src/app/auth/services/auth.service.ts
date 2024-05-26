@@ -23,7 +23,6 @@ export class AuthService {
     token: string;
     user: users;
   }> {
-    this.client.emit('verify_email', signInDto);
     const user = await this.userService.login(signInDto);
     const token = this.jwtService.sign(
       {
@@ -36,11 +35,7 @@ export class AuthService {
       },
     );
     delete user.password;
-    this.eventEmitter.emit('user.verify-email', {
-      name: user.name,
-      email: user.email,
-      otp: '****', // generate a random OTP
-    });
+    this.client.emit('verify_email', signInDto);
     return {
       token,
       user,

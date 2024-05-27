@@ -4,20 +4,17 @@ import { SignInDto } from '../dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { users } from '@prisma/client';
 import { SignUpDto } from '../dtos';
-import { TypedEventEmitter } from '../../../event-emitter/typed-event-emitter.class';
 import { ClientProxy } from '@nestjs/microservices';
+import { AppLocalService } from 'src/common/app-local/app-local.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly eventEmitter: TypedEventEmitter,
+    private readonly appLocalService: AppLocalService,
     @Inject('NOTIFICATION_SERVICE') private client: ClientProxy,
   ) {}
-  private generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
 
   async signIn(signInDto: SignInDto): Promise<{
     token: string;
@@ -29,13 +26,13 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: 'user',
       },
       {
         secret: process.env.JWT_SECRET,
       },
     );
     delete user.password;
-    this.client.emit('verify_email', signInDto);
     return {
       token,
       user,
@@ -49,13 +46,18 @@ export class AuthService {
       id: user.id,
       name: user.name,
     });
+    this.client.emit('verify_email', {
+      name: user.name,
+      email: user.email,
+      link: 'http://localhost:3000',
+    });
     return {
       token,
       user,
     };
   }
 
-  async profile(user: users): Promise<users> {
-    return this.userService.detail(user.id);
+  async profile() {
+    return this.appLocalService.getData('user');
   }
 }

@@ -13,8 +13,8 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { SignInDto, SignUpDto } from '../dtos';
 import { ResponseEntity } from 'src/common/entities/response.entity';
 import { AuthGuard } from '../guards';
-import { User } from '../decorators';
-import { users as Auth } from '@prisma/client';
+import { RoleAllowed } from 'src/common/guards/role-decorator';
+import { UserRoles } from 'src/common/enums/role';
 
 @ApiTags('Auth')
 @Controller({
@@ -56,9 +56,10 @@ export class AuthController {
   @ApiSecurity('JWT')
   @UseGuards(AuthGuard)
   @Get('profile')
+  @RoleAllowed(UserRoles['USER'])
   @Version('1')
-  async profile(@User() user: Auth) {
-    const data = await this.authService.profile(user);
+  async profile() {
+    const data = await this.authService.profile();
 
     return new ResponseEntity({
       results: {

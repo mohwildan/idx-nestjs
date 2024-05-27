@@ -9,7 +9,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+enum UserType {
+  NORMAL
+  MEMBERSHIP
+}
 
 model users {
   id        String     @id @default(uuid())
@@ -18,46 +21,103 @@ model users {
   password  String
   position  String?
   nik       String?
-  company   companies?
+  phone String?
+  company_id String @unique
+  companies companies @relation(fields: [company_id], references: [id])
   is_active Boolean @default(false)
-  deletedAt DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  is_approved Boolean @default(false)
+  user_type UserType
+  delete_at DateTime?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+}
+
+model user_admins {
+  id        String     @id @default(uuid())
+  name      String?
+  email     String     @unique
+  password  String
+  delete_at DateTime?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
 }
 
 model companies {
   id                      String     @id @default(uuid())
-  user_id                 String     @unique
   name                    String
-  province                provinces?
-  districts               districts?
-  postal_code             String
+  address                  String     
+  province_code            String     @unique
+  province                Province? 
+  regency_code String @unique
+  regency Regency?
+  district_code            String     @unique
+  district                District?  
+  village_code            String     @unique
+  village                  Village?     
+  postal_code            String
   npw                     String
   kbli                    String
   kadin_membership_number String
   membership_expiry_date  DateTime
-  province_id             String     @unique
-  district_id             String     @unique
-  users                   users      @relation(fields: [user_id], references: [id])
-  deletedAt               DateTime?
-  createdAt               DateTime   @default(now())
-  updatedAt               DateTime   @updatedAt
+  users   users[]
+  delete_at DateTime?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
 }
 
-model provinces {
-  id        String    @id @default(uuid())
-  name      String
-  companies companies @relation(fields: [id], references: [province_id])
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+model District {
+  code        String    @id @db.VarChar(10)
+  name        String    @db.VarChar(255)
+  regencyCode String    @map("regency_code") @db.VarChar(4)
+  regency     Regency   @relation(fields: [regencyCode], references: [code])
+  villages    Village[]
+  companies companies @relation(fields: [code], references: [id])
+
+  @@map("districts")
 }
 
-model districts {
-  id        String    @id @default(uuid())
-  name      String
-  companies companies @relation(fields: [id], references: [district_id])
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Island {
+  code             String   @id @db.VarChar(9)
+  coordinate       String   @db.VarChar(30)
+  isOutermostSmall Boolean  @map("is_outermost_small")
+  isPopulated      Boolean  @map("is_populated")
+  name             String   @db.VarChar(255)
+  regencyCode      String?  @map("regency_code") @db.VarChar(4)
+  regency          Regency? @relation(fields: [regencyCode], references: [code])
+
+  @@map("islands")
 }
+
+model Province {
+  code      String    @id @db.VarChar(2)
+  name      String    @db.VarChar(255)
+  regencies Regency[]
+  companies companies @relation(fields: [code], references: [id])
+
+  @@map("provinces")
+}
+
+model Regency {
+  code         String     @id @db.VarChar(4)
+  name         String     @db.VarChar(255)
+  provinceCode String     @map("province_code") @db.VarChar(2)
+  islands      Island[]
+  districts    District[]
+  companies companies @relation(fields: [code], references: [id])
+  province     Province   @relation(fields: [provinceCode], references: [code])
+
+  @@map("regencies")
+}
+
+model Village {
+  code         String   @id @db.VarChar(10)
+  districtCode String   @map("district_code") @db.VarChar(6)
+  name         String   @db.VarChar(255)
+  district     District @relation(fields: [districtCode], references: [code])
+  companies companies @relation(fields: [code], references: [id])
+
+  @@map("villages")
+}
+
+

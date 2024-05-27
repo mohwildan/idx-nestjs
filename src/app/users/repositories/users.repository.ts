@@ -20,12 +20,12 @@ export class UsersRepository {
     const { limit = 10, page = 1 } = paginateDto;
 
     const [data, count] = await this.prismaService.$transaction([
-      this.prismaService.user.findMany({
+      this.prismaService.users.findMany({
         skip: (+page - 1) * +limit,
         take: +limit,
         ...filter,
       }),
-      this.prismaService.user.count(),
+      this.prismaService.users.count(),
     ]);
 
     return new PaginatedEntity(data, {
@@ -35,19 +35,19 @@ export class UsersRepository {
     });
   }
 
-  public async create(data: Prisma.UserCreateInput) {
-    return this.prismaService.user.create({ data });
+  public async create(data: Prisma.UsersCreateInput) {
+    return this.prismaService.users.create({ data });
   }
 
   public async update(
     where: Prisma.UserWhereUniqueInput,
     data: Prisma.UserUpdateInput,
   ) {
-    return this.prismaService.user.update({ where, data });
+    return this.prismaService.users.update({ where, data });
   }
 
   public async delete(where: Prisma.UserWhereUniqueInput) {
-    return this.prismaService.user.update({
+    return this.prismaService.users.update({
       where,
       data: { deletedAt: new Date() },
     });

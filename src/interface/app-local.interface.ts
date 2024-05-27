@@ -1,3 +1,5 @@
 export interface AppLocalInterface {
-  baseUrl: string;
+  user: {
+    id: string;
+  };
 }

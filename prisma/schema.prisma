@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 enum UserType {
-  NORMAL
+  NORMAL 
   MEMBERSHIP
 }
 
@@ -22,11 +22,11 @@ model users {
   position  String?
   nik       String?
   phone String?
-  company_id String @unique
-  companies companies @relation(fields: [company_id], references: [id])
+  company_id String? @unique
+  companies companies? @relation(fields: [company_id], references: [id])
   is_active Boolean @default(false)
   is_approved Boolean @default(false)
-  user_type UserType
+  user_type UserType? 
   delete_at DateTime?
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
@@ -46,14 +46,14 @@ model companies {
   id                      String     @id @default(uuid())
   name                    String
   address                  String     
-  province_code            String     @unique
-  province                Province? 
-  regency_code String @unique
-  regency Regency?
-  district_code            String     @unique
-  district                District?  
-  village_code            String     @unique
-  village                  Village?     
+  province_code            String     
+  regency_code String 
+  province                Province?  @relation(fields: [province_code], references: [code])
+  regency Regency? @relation(fields: [regency_code], references: [code])
+  district_code            String     
+  district                District? @relation(fields: [district_code], references: [code])
+  village_code            String     
+  village                  Village? @relation(fields: [village_code], references: [code])
   postal_code            String
   npw                     String
   kbli                    String
@@ -72,7 +72,7 @@ model District {
   regencyCode String    @map("regency_code") @db.VarChar(4)
   regency     Regency   @relation(fields: [regencyCode], references: [code])
   villages    Village[]
-  companies companies @relation(fields: [code], references: [id])
+  companies    companies[]
 
   @@map("districts")
 }
@@ -92,8 +92,8 @@ model Island {
 model Province {
   code      String    @id @db.VarChar(2)
   name      String    @db.VarChar(255)
+  companies    companies[]
   regencies Regency[]
-  companies companies @relation(fields: [code], references: [id])
 
   @@map("provinces")
 }
@@ -104,7 +104,7 @@ model Regency {
   provinceCode String     @map("province_code") @db.VarChar(2)
   islands      Island[]
   districts    District[]
-  companies companies @relation(fields: [code], references: [id])
+  companies    companies[]
   province     Province   @relation(fields: [provinceCode], references: [code])
 
   @@map("regencies")
@@ -114,8 +114,8 @@ model Village {
   code         String   @id @db.VarChar(10)
   districtCode String   @map("district_code") @db.VarChar(6)
   name         String   @db.VarChar(255)
-  district     District @relation(fields: [districtCode], references: [code])
-  companies companies @relation(fields: [code], references: [id])
+  district     District? @relation(fields: [districtCode], references: [code])
+  companies    companies[]
 
   @@map("villages")
 }

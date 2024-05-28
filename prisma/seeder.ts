@@ -7,9 +7,31 @@ import {
 } from 'src/common/data/idn-area';
 import { PrismaClient } from '@prisma/client';
 import { areArraysEqual } from 'src/common/functions/array';
+import * as bcrypt from '@node-rs/bcrypt';
 
 export class Seeder {
   constructor(protected readonly prisma: PrismaClient) {}
+
+  /* User Admin Seeder */
+  async insertUserAdmin(): Promise<number> {
+    const hashPassword = await bcrypt.hash('momofin2024', 10);
+    const res = await this.prisma.user_admins.createMany({
+      data: [
+        {
+          name: 'kadin admin',
+          email: 'kadin@momofin.com',
+          password: hashPassword,
+        },
+      ],
+    });
+    return res.count;
+  }
+  async deleteUserAdmin(): Promise<number> {
+    const res = await this.prisma.user_admins.deleteMany();
+    return res.count;
+  }
+
+  /* Location Seeder */
 
   /**
    * Check if any provinces data have changed.

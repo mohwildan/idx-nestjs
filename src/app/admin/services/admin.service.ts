@@ -1,49 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AdminRepository } from '../repositories';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
-import { CreateAdminDto, UpdateAdminDto } from '../dtos';
+import { CreateAdminDto, LoginAdminDto, UpdateAdminDto } from '../dtos';
+import * as bcrypt from '@node-rs/bcrypt';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly user_adminsRepository: AdminRepository) {}
-
-  public paginate(paginateDto: PaginationQueryDto) {
-    return this.user_adminsRepository.paginate(paginateDto);
-  }
-
-  public detail(id: string) {
-    try {
-      return this.user_adminsRepository.firstOrThrow({
-        id,
-      });
-    } catch (error) {
-      throw new Error(error);
+  async login(loginAdminDto: LoginAdminDto) {
+    const userAdmin = await this.user_adminsRepository.first({
+      email: loginAdminDto.email,
+    });
+    if (!userAdmin) {
+      throw new HttpException('user tidak ditemukan!', HttpStatus.BAD_REQUEST);
     }
-  }
-
-  public async destroy(id: string) {
-    try {
-      return this.user_adminsRepository.delete({
-        id,
-      });
-    } catch (error) {
-      throw new Error(error);
+    const match = await bcrypt.compare(
+      loginAdminDto.password,
+      userAdmin.password,
+    );
+    if (!match) {
+      throw new HttpException(
+        'email atau password tidak cocok!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-  }
-
-  public async create(createAdminDto: CreateAdminDto) {
-    try {
-      return this.user_adminsRepository.create(createAdminDto);
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  public async update(id: string, updateAdminDto: UpdateAdminDto) {
-    try {
-      return this.user_adminsRepository.update({ id }, updateAdminDto);
-    } catch (error) {
-      throw new Error(error);
-    }
+    return userAdmin;
   }
 }

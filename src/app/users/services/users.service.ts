@@ -41,6 +41,7 @@ export class UsersService {
 
   public async create(createUsersDto: CreateUsersDto) {
     try {
+      return this.userRepository.create(createUsersDto);
     } catch (error) {
       throw new Error(error);
     }
@@ -105,7 +106,7 @@ export class UsersService {
       const match = await bcrypt.compare(signInDto.password, user.password);
       if (!match) {
         throw new HttpException(
-          'email dan password tidak cocok!',
+          'email atau password tidak cocok!',
           HttpStatus.BAD_REQUEST,
         );
       }

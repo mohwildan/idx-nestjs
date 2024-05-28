@@ -53,6 +53,13 @@ export class AuthGuard implements CanActivate {
           where: { id: payload.id },
         });
       }
+      if (payload.role === UserRoles.ADMIN) {
+        user = await this.prismaService.user_admins.findFirst({
+          where: {
+            id: payload.id,
+          },
+        });
+      }
 
       if (!user) {
         throw new UnauthorizedException();

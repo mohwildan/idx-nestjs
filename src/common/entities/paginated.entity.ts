@@ -1,11 +1,9 @@
 export class PaginatedEntity<T> {
   data: T[];
-  meta: {
-    totalPage: number;
-    totalData: number;
-    page: number;
-    limit: number;
-  };
+  limit: number;
+  page: number;
+  totalData: number;
+  totalPage: number;
 
   constructor(
     data: T[],
@@ -16,11 +14,9 @@ export class PaginatedEntity<T> {
     },
   ) {
     this.data = data;
-    this.meta = {
-      limit: +meta.limit,
-      page: +meta.page,
-      totalData: +meta.totalData,
-      totalPage: Math.ceil(meta.totalData / meta.limit),
-    };
+    this.page = +meta.page;
+    this.limit = +meta.limit;
+    this.totalData = +meta.totalData;
+    this.totalPage = Math.ceil(meta.totalData / meta.limit);
   }
 }

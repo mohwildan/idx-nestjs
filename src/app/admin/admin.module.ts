@@ -6,5 +6,6 @@ import { AdminRepository } from './repositories';
 @Module({
   controllers: [AdminController],
   providers: [AdminService, AdminRepository],
+  exports: [AdminService],
 })
 export class AdminModule {}

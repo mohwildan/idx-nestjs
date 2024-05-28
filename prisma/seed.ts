@@ -20,6 +20,7 @@ async function main() {
   console.log('Data changes found!');
 
   console.log('Deleting all data...');
+  await timify(seeder.deleteUserAdmin.bind(seeder), 'delete-user-admin')();
   await timify(seeder.deleteVillages.bind(seeder), 'delete-villages')();
   await timify(seeder.deleteDistricts.bind(seeder), 'delete-districts')();
   await timify(seeder.deleteRegencies.bind(seeder), 'delete-regencies')();
@@ -27,6 +28,7 @@ async function main() {
   await timify(seeder.deleteProvinces.bind(seeder), 'delete-provinces')();
 
   console.log('Inserting all data...');
+  await timify(seeder.insertUserAdmin.bind(seeder), 'insert-user-admin')();
   await timify(seeder.insertProvinces.bind(seeder), 'insert-provinces')();
   await timify(seeder.insertRegencies.bind(seeder), 'insert-regencies')();
   await timify(seeder.insertIslands.bind(seeder), 'insert-regencies')();

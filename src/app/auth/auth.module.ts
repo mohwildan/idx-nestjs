@@ -5,10 +5,14 @@ import { UsersModule } from '../users';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthGuard } from './guards';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AdminModule } from '../admin';
+import { CompanyModule } from '../company';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
+    forwardRef(() => AdminModule),
+    forwardRef(() => CompanyModule),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
